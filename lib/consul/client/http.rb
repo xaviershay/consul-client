@@ -4,14 +4,28 @@ require 'logger'
 
 module Consul
   module Client
+    # Any non-successful response from Consul will result in this error being
+    # thrown.
     ResponseException = Class.new(StandardError)
 
-    # Low-level wrapper around consul HTTP api.
+    # Low-level wrapper around consul HTTP api. Do not instantiate this class
+    # directly, instead use the appropriate factory methods.
+    #
+    # @see Consul::Client::V1#http
     class HTTP
-      def self.v1(*args)
-        new(*args)
+      # @api private
+      def initialize(host:, port:, logger:)
+        @host   = host
+        @port   = port
+        @logger = logger
       end
 
+      # Get JSON data from an endpoint.
+      #
+      # @param request_uri [String] portion of the HTTP path after the version
+      #                             base, such as +/agent/self+.
+      # @return [Object] parsed JSON response
+      # @raise [ResponseException] if non-200 response is received.
       def get(request_uri)
         url = base_uri + request_uri
         logger.debug("GET #{url}")
@@ -23,6 +37,17 @@ module Consul
         parse_body(response)
       end
 
+      # Watch an endpoint until the value returned causes the block to evaluate
+      # +false+.
+      #
+      # @param request_uri [String] portion of the HTTP path after the version
+      #                             base, such as +/agent/self+.
+      # @return [Object] parsed JSON response
+      # @raise [ResponseException] if non-200 response is received.
+      # @example blocks until there are at least 3 passing nodes for the web service.
+      #     http.get_while("/health/service/web?passing") do |data|
+      #       data.size <= 2
+      #     end
       def get_while(request_uri, &block)
         url = base_uri + request_uri
         index = 0
@@ -48,6 +73,13 @@ module Consul
         json
       end
 
+      # Put request to an endpoint. If data is provided, it is JSON encoded and
+      # sent in the request body.
+      # @param request_uri [String] portion of the HTTP path after the version
+      #                             base, such as +/agent/self+.
+      # @param data        [Object] body for request
+      # @return [Object] parsed JSON response
+      # @raise [ResponseException] if non-200 response is received.
       def put(request_uri, data = nil)
         url = base_uri + request_uri
         logger.debug("PUT #{url}")
@@ -62,17 +94,6 @@ module Consul
       attr_accessor :logger
 
       protected
-
-      def initialize(
-        host:   "localhost",
-        port:   8500,
-        logger: Logger.new("/dev/null")
-      )
-
-        @host   = host
-        @port   = port
-        @logger = logger
-      end
 
       def base_uri
         "http://#{@host}:#{@port}/v1"

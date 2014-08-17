@@ -19,4 +19,11 @@ client = Consul::Client.v1.http
 client.get("/agent/self")
 ```
 
-See `example` directory for more.
+See `example` directory for more:
+
+* `puts_service.rb` is a minimum server that demostrates coordinated shutdown.
+* `http_service.rb` builds on top of webrick for an auto-updating server with
+  coordinated restart.
+
+A `Vagrantfile` is provided that makes three
+Consul nodes, which is handy for playing around.

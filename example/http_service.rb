@@ -11,7 +11,8 @@
 # shared file system is easiest. It will trigger restarts on all nodes at the
 # same time.
 
-MIN_NODES = 0
+MIN_NODES = 1
+PORT = 8000
 VERSION_FILE = File.expand_path(ARGV[0] || 'VERSION')
 
 require 'logger'
@@ -23,7 +24,7 @@ s = Consul::Client.v1.http
 s.put("/agent/service/register",
   Name: 'http',
   Check: {
-    Script: "curl --fail localhost:8000/_status >/dev/null 2>&1",
+    Script: "curl --fail localhost:#{PORT}/_status >/dev/null 2>&1",
     Interval: "1s"
   }
 )
@@ -34,7 +35,7 @@ $healthy = true
 $logger.info "Monitoring #{VERSION_FILE} for changes"
 
 server = WEBrick::HTTPServer.new \
-  :Port => 8000
+  :Port => PORT
 
 server.mount_proc '/' do |req, res|
   res.body = 'Hello, world!'
@@ -61,7 +62,7 @@ t = Thread.new do
     if initial != current_version
       c = Consul::Client.v1.local_service('http', logger: $logger)
       $logger.info "Obtaining shutdown lock"
-      c.coordinated_shutdown!(min_nodes: MIN_NODES) do
+      c.coordinated_shutdown!(grace_period: 15, min_nodes: MIN_NODES) do
         $logger.info "Obtained lock, marking unhealthy"
         $healthy = false
       end

@@ -1,17 +1,25 @@
 module Consul
   module Client
-    # Provides cluster coordination features.
+    # Provides cluster coordination features. Do not instantiate this class
+    # directly, instead use the appropriate factory methods.
+    #
+    # @see Consul::Client::V1#service
     class Service
-      attr_reader :consul
-
+      # @api private
       def initialize(name, consul: Consul::Client.v1)
         @name   = name
         @consul = consul
       end
 
-      # Creates a session tied to this cluster, then blocks until the requested
-      # lock can be acquired, then yields. The lock is released and the session
-      # destroyed when the block completes.
+      # Creates a session tied to this cluster, then blocks indefinitely until
+      # the requested lock can be acquired, then yields. The lock is released
+      # and the session destroyed when the block completes.
+      #
+      # @param key [String] the name of the lock to acquire. This is namespace
+      #           under the service name and stored directly in the KV store,
+      #           so make sure it does not conflict with other names. For
+      #           instance, the leader lock for the +web+ service would be
+      #           stored at +/kv/web/leader+.
       def lock(key, &block)
         session = consul.put("/session/create",
           LockDelay: '5s',
@@ -35,19 +43,26 @@ module Consul
           end
           # TODO: Figure out why long poll doesn't work.
           # https://gist.github.com/xaviershay/30128b968bde0e2d3e0b/edit
-          sleep 1
+          sleep 2
         end
       end
 
-      # A cluster is healthy if it has N+1 nodes available. The extra 1 is assuming
-      # that whoever is asking for this is about to terminate.
+      # Block indefinitely until the cluster is healthy.
+      #
+      # @param min_nodes [Integer] minimum number of nodes required to be
+      #           healthy for the cluster as a whole to be considered healthy.
+      #           This method will block until there is at least one more than
+      #           this number, assuming that the caller is about to terminate.
       def wait_until_healthy!(min_nodes: 1)
         consul.get_while("/health/service/#{name}?passing") do |data|
           data.size <= min_nodes
         end
       end
 
+      private
+
       attr_reader :name
+      attr_reader :consul
     end
   end
 end
