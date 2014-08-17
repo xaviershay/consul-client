@@ -27,3 +27,10 @@ See `example` directory for more:
 
 A `Vagrantfile` is provided that makes three
 Consul nodes, which is handy for playing around.
+
+Documentation
+-------------
+
+[Comprehensive YARD documentation is
+available](http://rubydoc.info/github/xaviershay/consul-client/master), though
+honestly you're probably better off just working from the `example` directory.
