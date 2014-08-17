@@ -22,7 +22,7 @@ module Consul
       #           stored at +/kv/web/leader+.
       def lock(key, &block)
         session = consul.put("/session/create",
-          LockDelay: '5s',
+          LockDelay: '3s',
           Checks:    ["service:#{name}", "serfHealth"]
         )["ID"]
         loop do
@@ -43,7 +43,7 @@ module Consul
           end
           # TODO: Figure out why long poll doesn't work.
           # https://gist.github.com/xaviershay/30128b968bde0e2d3e0b/edit
-          sleep 2
+          sleep 3
         end
       end
 
