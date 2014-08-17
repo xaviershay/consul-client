@@ -10,6 +10,10 @@ before using for anything real._
 Usage
 -----
 
+It's a gem:
+
+    gem install consul-client
+
 Simple API usage:
 
 ```ruby
