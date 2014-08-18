@@ -54,7 +54,7 @@ module Consul
       #     http = Consul::Client.v1.http(logger: Logger.new($stdout))
       #     puts http.get("/get/self")["Member"]["Name"]
       def http(host: "localhost", port: 8500, logger: NULL_LOGGER)
-        HTTP.new(*args)
+        HTTP.new(host: host, port: port, logger: logger)
       end
     end
   end
