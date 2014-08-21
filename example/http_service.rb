@@ -20,6 +20,8 @@ require 'webrick'
 
 require 'consul/client'
 
+require_relative './dropwizard_logger'
+
 s = Consul::Client.v1.http
 s.put("/agent/service/register",
   Name: 'http',
@@ -29,13 +31,17 @@ s.put("/agent/service/register",
   }
 )
 
-$logger  = Logger.new($stdout)
+$logger  = DropwizardLogger.new('app', $stdout)
 $healthy = true
 
 $logger.info "Monitoring #{VERSION_FILE} for changes"
 
 server = WEBrick::HTTPServer.new \
-  :Port => PORT
+  :Port   => PORT,
+  :Logger => DropwizardLogger.new("webrick", $stdout).tap {|x|
+              x.level = Logger::INFO
+            },
+  :AccessLog => [[$stdout, DropwizardLogger.webrick_format("webrick")]]
 
 server.mount_proc '/' do |req, res|
   res.body = 'Hello, world!'

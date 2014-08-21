@@ -31,7 +31,7 @@ module Consul
       # @example
       #     local = Consul::Client.v1.local_service('web')
       #     local.coordinated_shutdown! { $healthy = false }
-      def local_service(name, http: http, logger: http.logger)
+      def local_service(name, http:Consul::Client.v1.http, logger:http.logger)
         LocalService.new(name, http: http, logger: logger)
       end
 

@@ -9,8 +9,8 @@ module Consul
       # @api private
       def initialize(name, http:, logger:)
         @name   = name
-        @consul = consul
-        consul.logger = logger
+        @consul = http
+        @consul.logger = logger
       end
 
       # Coordinate the shutdown of this node with the rest of the cluster so
