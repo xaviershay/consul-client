@@ -9,6 +9,8 @@ DOWN_FILE = File.expand_path("../down", __FILE__)
 require 'fileutils'
 require 'consul/client'
 
+require_relative './dropwizard_logger'
+
 FileUtils.touch(DOWN_FILE)
 
 s = Consul::Client.v1.http
@@ -21,7 +23,7 @@ s.put("/agent/service/register",
 )
 
 $shutdown = false
-$logger = Logger.new($stdout)
+$logger = DropwizardLogger.new($stdout, 'puts')
 $server = Thread.new do
   while !$shutdown
     $logger.info "Service is #{File.exist?(DOWN_FILE) ? "un" : ""}healthy"

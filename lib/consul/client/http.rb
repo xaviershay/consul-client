@@ -56,7 +56,7 @@ module Consul
         check = ->{
           uri = URI.parse(url)
           uri.query ||= ""
-          uri.query += "&index=#{index}&wait=10s"
+          uri.query += "&index=#{index}&wait=60s"
           logger.debug("GET #{uri}")
 
           response = http_request(:get, uri)

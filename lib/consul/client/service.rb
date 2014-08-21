@@ -6,7 +6,7 @@ module Consul
     # @see Consul::Client::V1#service
     class Service
       # @api private
-      def initialize(name, consul: Consul::Client.v1)
+      def initialize(name, consul: Consul::Client.v1.http)
         @name   = name
         @consul = consul
       end
@@ -20,10 +20,10 @@ module Consul
       #           so make sure it does not conflict with other names. For
       #           instance, the leader lock for the +web+ service would be
       #           stored at +/kv/web/leader+.
-      def lock(key, &block)
+      def lock(key, checks: ["service:#{name}"], &block)
         session = consul.put("/session/create",
           LockDelay: '3s',
-          Checks:    ["service:#{name}", "serfHealth"]
+          Checks:    ["serfHealth"] + checks
         )["ID"]
         loop do
           locked = consul.put("/kv/#{name}/#{key}?acquire=#{session}")
