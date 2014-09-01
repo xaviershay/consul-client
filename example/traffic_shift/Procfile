@@ -1,0 +1,2 @@
+updater: ruby2.1 -Ilib example/traffic_shift/updater.rb
+server: while ruby2.1 -Ilib example/traffic_shift/server.rb; do sleep 1; done
