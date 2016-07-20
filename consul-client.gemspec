@@ -22,6 +22,6 @@ Gem::Specification.new do |gem|
   gem.name          = "consul-client"
   gem.require_paths = ["lib"]
   gem.license       = "Apache 2.0"
-  gem.version       = '0.1.1'
+  gem.version       = '0.1.2'
   gem.has_rdoc      = false
 end
