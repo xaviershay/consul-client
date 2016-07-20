@@ -4,8 +4,7 @@ Consul Client
 Ruby client library for Consul HTTP API, providing both a thin wrapper around
 the raw API and higher level behaviours for operating in a Consul environment.
 
-_This library is experimental! Be sure to thoroughly test and code review
-before using for anything real._
+_This library is experimental and unmaintained! You probably shouldn't use it! Have you tried [Diplomat](https://github.com/WeAreFarmGeek/diplomat)?_
 
 Usage
 -----
